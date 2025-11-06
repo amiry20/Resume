@@ -1,0 +1,135 @@
+﻿@page "/Home"
+@using Microsoft.AspNetCore.Authentication
+@attribute [Authorize]
+@layout Layouts.PanelLayout
+<PageTitle>@_iLanguageHelper.GetText("Home")</PageTitle>
+
+    <AuthorizeView>
+        <Authorized>
+
+            <div class="pe-2 ps-2">
+
+                <div class="row">
+                    <div class="col-3 px-3 py-1">
+                        <div class="row bg-info  rounded-3">
+                            <img class="col-4 p-2" src="/images/sites/17.png" alt="Card image cap">
+                            <div class="col-8 align-self-auto center">
+                                <h6 class="">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3 px-3 py-1">
+                    <div class="row bg-primary  rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/0.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto center">
+                            <h6 class="m-1">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3 px-3 py-1">
+                    <div class="row bg-warning  rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/18.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto float-end">
+                            <h6 class="m-1">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-3 px-3 py-1">
+                    <div class="row bg-secondary  rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/16.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto center">
+                            <h6 class="">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+
+                <div class="col-6 px-3 py-1">
+                    <div class="row bg-primary  rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/0.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto center">
+                            <h6 class="">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 px-3 py-1">
+                    <div class="row bg-info  rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/20.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto center">
+                            <h6 class="">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="row">
+
+
+                <div class="col-12 px-3 py-1">
+                    <div class="row bg-light  rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/9.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto center">
+                            <h6 class="">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="row">
+                <div class="col-8 px-3 py-1">
+                    <div class="row bg-warning  rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/10.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto center">
+                            <h6 class="">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-4 px-3 py-1">
+                    <div class="row bg-info  rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/19.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto center">
+                            <h6 class="">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                    <div class="row bg-primary mt-1 rounded-3">
+                        <img class="col-4 p-2" src="/images/sites/15.png" alt="Card image cap">
+                        <div class="col-8 align-self-auto center">
+                            <h6 class="">@DateTime.Now.ToString("fffff")</h6>
+                            <small class="text-wrap">محلی برای درج مطالب مورد نیاز گزارش خاص</small>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class=" ">
+            <a class=" " href="/">@_iLanguageHelper.GetAppName()</a>
+            <small class="navbar-brand">@context.User.Identity?.Name </small>
+        </div>
+    </NotAuthorized>
+</AuthorizeView> 

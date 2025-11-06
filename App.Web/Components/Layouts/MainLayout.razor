@@ -1,0 +1,59 @@
+﻿@inherits LayoutComponentBase
+<div class="page">
+
+    <main>
+        <div class="top-row">
+            @if (App.Application.StaticClass.AppIsDebug)
+            {
+                <i class="bi bi-heart-fill text-danger"></i>
+                <i class="bi bi-star-fill text-warning"></i>
+                <i class="bi bi-person text-primary"></i>
+                <i class="bi bi-person text-primary"></i>
+                <i class="bi bi-person-add text-primary"></i>
+                <i class="bi bi-truck text-primary"></i>
+                <i class="bi bi-truck-front text-primary"></i>
+                <i class="bi bi-usb-drive text-primary"></i>
+                <button type="button" class="box btn btn-warning position-relative">
+                    SMS
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        99+
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+                </button>
+
+                <a href="https://Time.ir" target="_blank">@("(" + DateTime.Now.ToString("ffff") + ")")</a>
+
+            }
+
+            <a href="https://Time.ir" target="_blank">@iAppInfo.GetCurrentDate() </a>
+            <a class="float-start" href="/Home" target="_blank">@_iLanguageHelper.GetText("Home")</a>
+
+        </div>
+        <div id="components-reconnect-modal" class="  components-reconnect-hide">
+            <div class="show">
+                <small class="text-danger">
+                    اتصال با سرور قطع شد. صفحه را بازنشانی کنید
+                </small>
+            </div>
+            <div class="failed">
+                <small class="text-danger">
+                    خطایی در برقراری ارتباط با سرور رخ داده است.دوباره تلاش کنید
+                </small>
+            </div>
+            <div class="rejected">
+                <small class="text-warning">
+                    ارتباط شما از طرف سرور قطع شده. دوباره تلاش کنید
+                </small>
+            </div>
+        </div>
+        <section class="content m-1">
+            @Body
+        </section>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    <a class="dismiss text-danger me-2 ms-2">🗙</a>
+    <small class="me-2 ms-2">@_iLanguageHelper.GetText("AnUnhandledErrorHasOccurred")</small>
+    <a href="" class="reload me-2 ms-2">@_iLanguageHelper.GetText("ReLoad")</a>
+</div>

@@ -1,0 +1,96 @@
+﻿
+<div class="modal @modalClass" tabindex="0" role="dialog" style="@modalDisplay">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content"> 
+            <div class="modal-body @classType">
+                <ul>
+                    @if (MdlBodys != null)
+                    {
+                        foreach (var item in MdlBodys)
+                        {
+                            <li>@_iLanguageHelper.GetText(item)</li>
+                        }
+                    }
+                    else
+                    {
+                        <li>@_iLanguageHelper.GetText("NotFoundInfo") </li>
+                    }
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @ref=ReferenceControl tabindex="2" @onclick="@(()=>Cancel())">
+                    @_iLanguageHelper.GetText("Know")
+                </button>
+            </div>
+            @if (progressCount > 0)
+            {
+                <progress class="w-100 " value="@progressCount" max="200"></progress>
+            }
+        </div>
+    </div>
+</div>
+
+
+@if (showBackdrop)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    ElementReference ReferenceControl;
+    private List<string>? MdlBodys { get; set; }
+    private string modalDisplay = "display:none;";
+    private string modalClass = string.Empty;
+    private string classType = string.Empty;
+    private bool showBackdrop = false;
+    private int progressCount = 0; 
+    private async void Show(string type, bool timing, params string[]? mdlBodys)
+    {
+        MdlBodys = mdlBodys.ToList();
+        modalDisplay = "display:block;";
+        modalClass = "show";
+        classType = type;
+        showBackdrop = true;
+        if (timing)
+        {
+            progressCount = 1;
+            for (int i = 0; i < 200; i++)
+            {
+                await Task.Delay(35);
+                progressCount++;
+                if (progressCount >= 200) break;
+                StateHasChanged();
+            }
+            Cancel();
+        }
+    }
+    public void ShowSuccess(params string[]? mdlBodys)
+    {
+        Show("bg-success", true, mdlBodys);
+
+    }
+
+    public void ShowWarning(params string[]? mdlBodys)
+    {
+        Show("bg-warning", false, mdlBodys);
+    }
+
+    public void ShowInfo(params string[]? mdlBodys)
+    {
+        Show("bg-primary", true, mdlBodys);
+    }
+
+    public void ShowError(params string[]? mdlBodys)
+    {
+        Show("bg-danger", true, mdlBodys);
+    }
+
+    private void Cancel()
+    {
+        modalDisplay = "display:none;";
+        modalClass = "";
+        showBackdrop = false;
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,99 @@
+﻿@page "/"
+@layout Layouts.EmptyLayout
+@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
+
+<PageTitle>@_iLanguageHelper.GetAppName()</PageTitle>
+    @*<i class="bi bi-0-circle"></i>
+<i class="bi bi-plus"></i>
+ <p>
+        <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+
+        Link with href
+    </a>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample"   aria-expanded="false" aria-controls="collapseExample">
+
+        Button with data-bs-target
+    </button>
+</p>
+    <div class="collapse show" id="collapseExample"  >
+    <div class="card card-body">
+        Some placeho  .
+    </div>
+</div> *@
+
+
+    <div class=" mt-5">
+        <img class="w-100 rounded rounded-2" src="images/sites/5.jpg">
+    </div>
+
+
+    <div class="row mt-5 border border-1">
+
+        <div class="col-md-6 text-center ">
+            <p>مطالب و تصاویر دلخواه خود را در این بخش می توانید پیاده سازی کنید</p>
+            <p>مطالب و تصاویر دلخواه خود را در این بخش می توانید پیاده سازی کنید</p>
+            <p>مطالب و تصاویر دلخواه خود را در این بخش می توانید پیاده سازی کنید</p>
+        </div>
+
+        <div class="col-md-6">
+            <img class="mw-100 rounded rounded-2" src="images/sites/7.png" />
+        </div>
+    </div>
+
+
+    <div class="row mt-5 border border-1">
+
+        <div class="col-md-6 ">
+            <img class="mw-100 rounded rounded-5" src="images/sites/6.jpg" />
+        </div>
+        <div class="col-md-6 text-center ">
+            <p>مطالب و تصاویر دلخواه خود را در این بخش می توانید پیاده سازی کنید</p>
+            <p>مطالب و تصاویر دلخواه خود را در این بخش می توانید پیاده سازی کنید</p>
+            <p>مطالب و تصاویر دلخواه خود را در این بخش می توانید پیاده سازی کنید</p>
+        </div>
+
+    </div>
+    <div class="row mt-5 ">
+
+        <div class="col-md-3">
+            <img class="mw-100 rounded-circle" src="images/sites/11.jpg" />
+        </div>
+
+        <div class="col-md-3 ">
+            <img class="mw-100 rounded-circle" src="images/sites/12.jpg" />
+        </div>
+
+        <div class="col-md-3 ">
+            <img class="mw-100 rounded-circle" src="images/sites/13.jpg" />
+        </div>
+
+        <div class="col-md-3 ">
+            <img class="mw-100 rounded-circle" src="images/sites/14.jpg" />
+        </div>
+
+
+    </div>
+
+
+
+    <div class="row mt-5   bg-light ">
+
+        <div class="col-md-6 ">
+            <img class="mw-100 rounded rounded-5" src="images/sites/8.jpg" />
+        </div>
+        <div class="col-md-6 text-center ">
+            <p class="text-wrap">این سایت به سفارش شرکت مهندس امیری تهیه و تنظیم شده است تمامی حقوق سایت در نزد مهندس امیری محفوظ می باشد</p>
+        </div>
+    </div>
+
+    <div class="row mt-5  ">
+    </div>
+
+    @code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!StaticClass.AppIsDebug)
+            navigationManager.NavigateTo($"Home");
+    }
+}

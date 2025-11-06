@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Components\Layouts\12\**" />
+    <Compile Remove="Components\Pages\Brands\**" />
+    <Compile Remove="Components\Shared\Https\**" />
+    <Content Remove="Components\Layouts\12\**" />
+    <Content Remove="Components\Pages\Brands\**" />
+    <Content Remove="Components\Shared\Https\**" />
+    <EmbeddedResource Remove="Components\Layouts\12\**" />
+    <EmbeddedResource Remove="Components\Pages\Brands\**" />
+    <EmbeddedResource Remove="Components\Shared\Https\**" />
+    <None Remove="Components\Layouts\12\**" />
+    <None Remove="Components\Pages\Brands\**" />
+    <None Remove="Components\Shared\Https\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="CallMediator.cs" />
+    <Compile Remove="Components\Pages\BaseInfos\Roles\RoleAccessCodeEdit - Copy.cs" />
+    <Compile Remove="ICallMediator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Components\Pages\BaseCodes\e1ekgt5o.bsi~" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\App.Application\App.Application.csproj" />
+    <ProjectReference Include="..\App.Config\App.Config.csproj" />
+    <ProjectReference Include="..\App.Infrastructure\App.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Components\Pages\BaseInfos\Camions\Add.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="Components\Pages\BaseInfos\Camions\Edit.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="Components\Pages\BaseInfos\Camions\Index.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,132 @@
+﻿@using System.Reflection
+@using System.Collections
+@using System.ComponentModel.DataAnnotations
+@using App.Application.Bases
+@using App.Web.Base
+@inject ISessionInfo iSessionInfo
+@if (Mdls != null)
+{
+    <tbody>
+        @if (Mdls != null && Mdls.Count() > 0)
+        {
+            var props = Mdls.FirstOrDefault()?.GetType().GetProperties();
+
+            foreach (var item in Mdls)
+            {
+                <tr>
+                    <td class="text-center fix-column">
+                        @RowNo
+                    </td>
+
+                    @if (MdlStructs != null)
+                    {
+                        foreach (var strc in MdlStructs.Where(x => x.IsVisible))
+                        {
+                            <td class="text-@strc.TextAligh">
+                                @{
+                                    var prop = props?.Where(x => x.Name.Equals(strc.Name)).FirstOrDefault();
+                                    if (prop != null)
+                                    {
+                                        var propValue = prop?.GetValue(item)?.ToString();
+                                        if (prop.PropertyType.IsNullableEnum())
+                                        {
+                                            <small class="p-2 @(propValue=="Inactive"?"text-danger":"")">
+                                                @(_iLanguageHelper.GetText(propValue))
+                                            </small>
+                                        }
+                                        else if (prop.Name.ToLower() == "languageid")
+                                        {
+                                            if (!propValue.IsNullEmpty())
+                                            {
+                                                <small class="p-2">
+                                                    @(_iLanguageHelper.GetText(((eLanguage)propValue.ToInt()).ToString()))
+                                                </small>
+                                            }
+                                        }
+                                        else if (prop.Name.ToLower() == "imagepath")
+                                        {
+                                            if (!propValue.IsNullEmpty())
+                                            {
+                                                <img class="img-box-50" src="@propValue" />
+                                            }
+                                        }
+                                        else if (prop.PropertyType == typeof(DateTime?) && !propValue.IsNullEmpty())
+                                        {
+                                            if (strc.IsOnlyDate)
+                                            {
+                                                <small class="p-2 ltr">
+                                                    @(iAppInfo.GetDate(DateTime.Parse(propValue)))
+                                                </small>
+                                            }
+                                            else
+                                            {
+                                                <small class="p-2 ltr">
+                                                    @(iAppInfo.GetDateTime(DateTime.Parse(propValue)))
+                                                </small>
+                                            }
+                                        }
+                                        else if (prop.PropertyType == typeof(bool?))
+                                        {
+                                            if (propValue.ToBool())
+                                            {
+                                                <i class="p-2 bi bi-check2-circle text-success"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="p-2 bi bi-x-circle text-danger"></i>
+                                            }
+                                        }
+                                        else if (strc.IsSeprator)
+                                        {
+                                            <small>@(propValue.ToLongString(0, "#,#"))</small>
+                                        }
+                                        else
+                                        {
+                                            <small>@propValue</small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <small>NotFount:@strc.Name</small>
+                                    }
+                                }
+
+                            </td>
+                        }
+                    }
+
+                    @if (EventCallModels != null)
+                    {
+                        <td class="text-nowrap">
+
+                            @foreach (var eventCall in EventCallModels.OrderBy(o => o.Ordered))
+                            {
+                                <button class="m-1 p-1 @eventCall.Class" @onclick="@(()=>CallEvent(eventCall.EventCallback,item ))">
+                                    @_iLanguageHelper.GetText(eventCall.Title)
+                                </button>
+                            }
+                        </td>
+                    }
+                </tr>
+                RowNo++;
+            }
+        }
+    </tbody>
+}
+
+
+@code {
+
+    [Parameter] public int RowNo { get; set; }
+    [Parameter] public List<StructModel>? MdlStructs { get; set; }
+    [Parameter] public IEnumerable<object>? Mdls { get; set; }
+
+    [Parameter] public List<EventCallModel>? EventCallModels { get; set; }
+
+    private List<PropertyInfo> propertyInfos = new List<PropertyInfo>();
+
+    private async Task CallEvent(EventCallback<object> eventCall, object obj)
+    {
+        await eventCall.InvokeAsync(obj);
+    }
+}

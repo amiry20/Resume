@@ -1,0 +1,53 @@
+﻿@if (!IsAccess)
+{
+    <ErrorAccess MsgErrors="MsgErrors" />
+}
+else if (IsLoading)
+{
+    <Loading />
+}
+else
+{
+    <EditForm EditContext="EditContext" method="post" OnValidSubmit="Submit" FormName="FormName">
+        <div class="card ">
+            <div class="card-header overflow-x-flex justify-content-between">
+                <div class="input-group-append">
+                    <h6 class="card-title text-nowrap">
+                        @_iLanguageHelper.GetText("Edit") (@_iLanguageHelper.GetText(FormTitle))
+                    </h6>
+                </div>
+                <div class="text-nowrap">
+                    <button type="submit" class="btn btn-info" @onclick="@(()=> EventActionType("SaveReturn"))"> @_iLanguageHelper.GetText("SaveReturn")</button>
+                    <button type="submit" class="btn btn-primary" @onclick="@(()=> EventActionType("Save"))"> @_iLanguageHelper.GetText("Save")</button>
+                    <button type="button" class="btn btn-secondary" @onclick="Return">@_iLanguageHelper.GetText("Return")</button>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <DataAnnotationsValidator />
+                <MessageBox EditContext="EditContext" MsgSuccess=@MsgSuccess MsgErrors="MsgErrors" />
+
+                @ChildContent
+            </div>
+        </div>
+    </EditForm>
+
+}
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public bool IsAccess { get; set; } = false;
+    [Parameter] public bool IsLoading { get; set; } = false;
+    [Parameter] public List<string> MsgErrors { get; set; }
+    [Parameter] public string? MsgSuccess { get; set; }
+    [Parameter] public string? FormName { get; set; }
+    [Parameter] public string? FormTitle { get; set; }
+    [Parameter] public EventCallback<EditContext> Submit { get; set; }
+    [Parameter] public EventCallback Return { get; set; } 
+    [Parameter] public EditContext? EditContext { get; set; } 
+    [Parameter] public EventCallback<string> EventAction  { get; set; }
+    private async Task EventActionType(string action)
+    {
+        await EventAction.InvokeAsync(action);
+    }
+}

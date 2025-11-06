@@ -1,0 +1,105 @@
+﻿@page "/LoginConfirm/{key:guid}"
+@using System.Security.Claims
+@using App.Application
+@using App.Application.Bases
+@using App.Application.Classes
+@using App.Application.DTOs
+@using App.Application.Interfaces
+@using App.Application.Queries
+@using App.Web.Base
+@using MediatR
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@layout Layouts.LoginLayout
+@inject IMediator mediator
+@inject IIOC iIoc
+@inject IStateContainer iStateContainer
+@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
+<PageTitle>LoginConfirm</PageTitle>
+
+<p role="status">Current LoginConfirm </p>
+
+@code {
+
+    [Parameter] public Guid? Key { get; set; }
+    private AppLoginModel? appLogin;
+    [CascadingParameter] public HttpContext httpcontext { get; set; } = default!;
+    private CancellationTokenSource cancellationToken = new CancellationTokenSource();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var message = await LoginUser();
+        if (message.IsNullEmpty())
+            navigationManager.NavigateTo(appLogin.Redirect);
+        else
+        {
+            var stateModel = new AppLoginModel() { Message = message, Redirect = appLogin.Redirect };
+            var key = iStateContainer.SetObject(stateModel);
+            navigationManager.NavigateTo($"Login/{key}");
+        }
+    }
+
+    public async Task<string?> LoginUser()
+    {
+        try
+        {
+            if (mediator == null)
+                return _iLanguageHelper.GetText("ServiceNotFound", nameof(mediator));
+
+            if (Key != null)
+                appLogin = iStateContainer?.GetObject(Key) as AppLoginModel;
+
+            if (appLogin == null || appLogin.UserName.IsNullEmpty() || appLogin.Password.IsNullEmpty())
+                return _iLanguageHelper.GetText("ParameterNotFound", nameof(appLogin.UserName), nameof(appLogin.Password));
+
+            var mdlQuery = new LoginQuery();
+            mdlQuery.UserName = appLogin.UserName;
+            mdlQuery.Password = appLogin.Password;
+
+            var res = await mediator.Send(mdlQuery, cancellationToken.Token);
+            if (res != null)
+            {
+                var mdlReturn = (SelectReturn<List<UserLoginDTO>>)res;
+
+                if (mdlReturn == null || !mdlReturn.Result)
+                    return mdlReturn?.GetErrors();
+
+                if (mdlReturn.Data == null || mdlReturn.Data.Count != 1)
+                    return _iLanguageHelper.GetText("UserNotFound");
+
+                var mdl = mdlReturn.Data.FirstOrDefault();
+                if (mdl == null || !mdl.IsEnable.ToBool())
+                    return _iLanguageHelper.GetText("UserInactive");
+                var name = mdl.PersonName.Replace(" ", "").IsNullEmpty() ? mdl.UserName : mdl.PersonName;
+
+                var imagepath = mdl.PersonImage ?? "";
+                if (!imagepath.IsNullEmpty())
+                    imagepath = $"images/Profiles/{imagepath}";
+
+                var claims = new List<Claim>()
+                             {
+                                new Claim(ClaimTypes.Name,name),
+                                new Claim(ClaimTypes.NameIdentifier,mdl.KeyId.ToString() ),
+                                new Claim(ClaimTypes.MobilePhone,imagepath),
+                                new Claim(ClaimTypes.HomePhone,appLogin.LanguageId.ToString()),
+                                new Claim(ClaimTypes.Role,mdl.IsAdmin.ToString())
+                                // new Claim(ClaimTypes.IsPersistent,"login.IsRemmember.ToString()")
+                               };
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var pricipal = new ClaimsPrincipal(identity);
+
+                var properties = new AuthenticationProperties() { IsPersistent = false };
+                await httpcontext.SignInAsync(pricipal, properties);
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            var iAppLogger = iIoc.CreateObject<IAppLogger>();
+            iAppLogger.Error(ex, this.GetType().Name);
+            return ex.ToString();
+        }
+        return null;
+    }
+} 

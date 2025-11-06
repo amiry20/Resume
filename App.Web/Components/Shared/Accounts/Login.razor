@@ -1,0 +1,154 @@
+﻿@page "/Login/{key:guid?}"
+@using App.Application.Bases
+@using App.Application.Interfaces
+@using App.Web.Base
+@inject NavigationManager navigationManager
+@inject IStateContainer iStateContainer
+@inject HttpContextAccessor httpContextAccessor
+@layout Layouts.LoginLayout
+@rendermode @(new InteractiveServerRenderMode(false))
+<PageTitle>@_iLanguageHelper.GetText("Enter")</PageTitle>
+
+    <div class="container">
+        <div class="row">
+            <div class=" col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class=" mt-5">
+                    <h2 class="text-center  mb-5">@_iLanguageHelper.GetText("EnterToSystem")</h2>
+                <EditForm Model="model" method="post" OnValidSubmit="LoginUser" FormName="Login" data-enhance>
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" role="alert" />
+
+                    <div class="row ">
+                        <div class=" text-center col ">
+                            <div class=" ">
+                                <InputText @bind-Value="model!.UserName" placeholder="@_iLanguageHelper.GetText("UserName")" class="form-control text-center" autocomplete="username" aria-required="true" />
+                            </div>
+                            <div class="mt-3  ">
+                                <InputText @bind-Value="model!.Password" type="password" placeholder="@_iLanguageHelper.GetText("Password")" class="form-control text-center" />
+                            </div>
+                                
+                                <div class="mt-2 d-flex">
+                                    <small class="lbl-title small required">
+                                        @_iLanguageHelper.GetText(nameof(model.LanguageId))
+                                    </small>
+                                    <div class="w-100">
+                                        <select class="cursor-hand form-control h-100" @bind="model.LanguageId">
+                                            @foreach (var item in Enum.GetValues<eLanguage>())
+                                            {
+                                                if (item == eLanguage.Fa)
+                                                {
+                                                    <option value="@((int)item)" selected="selected">
+                                                        @_iLanguageHelper.GetText(item.ToString())
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@((int)item)">
+                                                        @_iLanguageHelper.GetText(item.ToString())
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                 
+
+
+                            @if (isLoading)
+                            {
+                                <Loading Title="AddBrands" />
+                            }
+                            else
+                            {
+                                <div class="mt-3 ">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        @_iLanguageHelper.GetText("Enter")
+                                    </button>
+                                </div>
+                                @if (!msg.IsNullEmpty())
+                                {
+                                    <div class="text-start mt-3">
+                                        <p class="text-danger">@_iLanguageHelper.GetText(msg)</p>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </EditForm>
+                <div class="mt-2">
+                    <ul class="text-primary">
+                        <li>
+                            <small> @_iLanguageHelper.GetText("EnterUserNameThenEnterToSystem")</small>
+                        </li>
+                        <li>
+                            <small> @_iLanguageHelper.GetText("SaveUserNameAndPassword")</small>
+                        </li>
+                    </ul>
+                </div>
+                <div class="text-start">
+                    <NavLink href="/"><small> @_iLanguageHelper.GetText("Return")</small> </NavLink>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-xs-12 col-lg-8 col-md-8">
+            <img class="mw-100 m-1" src="images/sites/login.gif" />
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private bool isLoading { get; set; } = true;
+    [Parameter] public string? msg { get; set; }
+    [Parameter] public Guid? Key { get; set; }
+    [SupplyParameterFromQuery] private string? ReturnUrl { get; set; }
+    public AppLoginModel model { get; set; } = new AppLoginModel();
+    [CascadingParameter] public HttpContext? HttpContext { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpContext is null)
+        {
+            // await Task.Delay(1000);
+            if (httpContextAccessor.HttpContext != null && httpContextAccessor.HttpContext.User != null &&
+                httpContextAccessor.HttpContext.User.Identity != null && httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+            {
+                if (!ReturnUrl.IsNullEmpty())
+                    navigationManager.NavigateTo(ReturnUrl, true);
+                else navigationManager.NavigateTo($"/", true, true);
+            }
+            if (Key != null)
+            {
+                var appLogin = iStateContainer?.GetObject(Key) as AppLoginModel;
+                if (appLogin != null)
+                {
+                    ReturnUrl = appLogin.Redirect;
+                    msg = appLogin.Message;
+                }
+            }
+            if (App.Application.StaticClass.AppIsDebug)
+            {
+                // model = new AppLogin(){ UserName = "User",Password= "123456",    };
+                //  model = new AppLogin(){ UserName = "usercompany",Password= "123456",    };
+                model = new AppLoginModel() { UserName = "admin", Password = "123456", };
+            }
+            await Loading(false);
+        }
+    }
+
+    private async Task Loading(bool isLoad = true)
+    {
+        isLoading = isLoad;
+        if (isLoad)
+            await Task.Delay(1);
+        else
+            StateHasChanged();
+    }
+    public async Task LoginUser()
+    {
+        msg = null;
+        await Loading();
+        model.Redirect = ReturnUrl; 
+        var key = iStateContainer.SetObject(model);
+        navigationManager.NavigateTo($"LoginConfirm/{key}", true);
+    }
+}

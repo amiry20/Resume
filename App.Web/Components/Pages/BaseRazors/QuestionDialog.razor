@@ -1,0 +1,78 @@
+﻿<div class="modal @modalClass" tabindex="0" role="dialog" style="@modalDisplay">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info bg-gradient">
+                <slmall class="modal-title ">  @_iLanguageHelper.GetText("Question") </slmall>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    @if (MdlBodys != null)
+                    {
+                        foreach (var item in MdlBodys)
+                        {
+                            <li>@_iLanguageHelper.GetText(item) </li>
+                        }
+                    }
+                    else
+                    {
+                        <li>@_iLanguageHelper.GetText("NotFoundInfo") </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-success" @ref="ReferenceControl" tabindex="1" @onclick="@(()=>Ok())">
+                    @_iLanguageHelper.GetText("Confirm")
+                </button>
+                <button class="btn btn-secondary" tabindex="2" @onclick="@(()=>Cancel())">
+                    @_iLanguageHelper.GetText("Cancel")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@if (showBackdrop)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; } 
+    [Parameter] public EventCallback<(object?, int)> EventOk { get; set; }
+
+    ElementReference ReferenceControl;
+    private object? Obj { get; set; }
+    private string[]? MdlBodys { get; set; }
+    private string modalDisplay = "display:none;";
+    private string modalClass = string.Empty;
+    protected int OkType = 0;
+
+    private bool showBackdrop = false;
+
+    public void Show(object? obj,int okType, params string[]? mdlBodys)
+    {
+        OkType = okType;
+        Obj = obj; 
+        MdlBodys = mdlBodys;
+        modalDisplay = "display:block;";
+        modalClass = "show";
+        showBackdrop = true;
+    }
+
+    private void Ok()
+    {
+        modalDisplay = "display:none;";
+        modalClass = "";
+        showBackdrop = false;
+        StateHasChanged();
+        EventOk.InvokeAsync((Obj, OkType)); 
+    }
+    private void Cancel()
+    {
+        modalDisplay = "display:none;";
+        modalClass = "";
+        showBackdrop = false;
+        StateHasChanged();
+    }
+}

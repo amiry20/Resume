@@ -1,0 +1,20 @@
+﻿
+<div class="border border-1 p-3">
+
+    <ul>
+        @if (MsgErrors != null)
+        {
+            foreach (var error in MsgErrors)
+            {
+                <li class="text-danger"><small>@_iLanguageHelper.GetText(error)</small> </li>
+            }
+        }
+
+    </ul>
+
+</div>
+
+
+@code {
+    [Parameter] public List<string>? MsgErrors { get; set; }
+}

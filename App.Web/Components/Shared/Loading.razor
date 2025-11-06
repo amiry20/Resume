@@ -1,0 +1,38 @@
+﻿ 
+<div class="panel-float-center @visibility" id="loding">
+    <div class="row"> 
+        <div class="col "> 
+            @if (CanClose)
+            {
+                <small class="float-end btn border border-1" @onclick="Close">X</small>
+            }
+        </div>
+    </div> 
+    <div class="row ">
+        <div class="col-2 "> 
+            <a href="@Title" target="_blank"><small class="text-primary spinner-border"></small></a>
+        </div>
+        <div class="col-8 pt-2">
+            <small>@_iLanguageHelper.GetText("IsLoading")</small>
+        </div>
+    </div> 
+</div>
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public bool CanClose { get; set; }
+    [CascadingParameter] public HttpContext? httpContext { get; set; } 
+    string? visibility { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (httpContext is null)
+        {
+            CanClose = true;
+            visibility = "visible"; 
+        }
+    }
+    private void Close()
+    {
+        visibility = "invisible";
+    } 
+}

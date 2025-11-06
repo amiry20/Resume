@@ -1,0 +1,21 @@
+﻿@page "/Banks"
+@using App.Web.Components.Pages.Banks
+@using App.Application.Bases
+@using App.Application.DTOs
+@using App.Application.Queries 
+@rendermode @(new InteractiveServerRenderMode(false))
+
+@inherits BankCodeIndex
+
+<PageTitle>@GetModelName()</PageTitle>
+
+    <MainIndex IsAccess="_isAccess" IsLoading="_isLoading" ModelName="@GetModelName()" MsgErrors="_msgErrors"
+               ExportPDF="ExportPDF" ExportEcxel="ExportEcxel" Add="Add" Reload="Reload" MdlPaging="mdlReturn.Paging" MdlEventCalls="_mdlEventCalls"
+               Structs="mdlReturn.Structs" Order="mdlReturn.Order" Mdls="mdlReturn.Data" FilterEvent="(arg1)=>Filter(arg1)"
+               SortededEvent="SetOrder" SearchColumnEvent="SearchColumn" PageSelectTotal="SelectChange" PageSelect="GetPage" 
+               MsgSuccess="@_msgSuccess">
+
+        <AlertDialog @ref="_alertDialog" />
+        <DeleteDialog @ref="_deleteDialog" EventDelete="Delete" /> 
+</MainIndex> 
+ 

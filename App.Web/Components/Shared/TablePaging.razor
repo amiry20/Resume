@@ -1,0 +1,65 @@
+﻿@using App.Application.Bases
+@if (MdlPaging != null && MdlPaging.GetLastPage > 0)
+{
+    <ul class="pagination ">
+
+        <li class="page-item previous  @((MdlPaging.Page < 2) ? "disabled" : "")">
+            <small class="page-link " @onclick="()=>GetList(MdlPaging.Page>1 ? MdlPaging.Page-1 : 1)">@_iLanguageHelper.GetText("Preview") </small>
+        </li>
+
+        @if ((MdlPaging.Page > 2))
+        {
+            <li class=" page-item ">
+                <small class="btn  btn-primary" @onclick="()=>GetList(1)">1.. </small>
+            </li>
+        }
+
+        @for (int i = (MdlPaging.Page > 2) ? MdlPaging.Page - 1 : 1; i <= ((MdlPaging.GetLastPage > MdlPaging.Page + 1) ? MdlPaging.Page + 1 : MdlPaging.GetLastPage); i++)
+        {
+            int p = i;
+            <li class="page-item @((i == MdlPaging.Page) ? "active" : "" )">
+                <small class="page-link   " @onclick="()=>GetList(p)">@p</small>
+            </li>
+        }
+
+        @if ((MdlPaging.Page + 2 <= MdlPaging.GetLastPage))
+        {
+            <li class="page-item">
+                <small class="page-link " @onclick="()=>GetList(MdlPaging.GetLastPage)">...@MdlPaging.GetLastPage </small>
+            </li>
+        }
+        <li class="page-item next @((MdlPaging.Page < MdlPaging.GetLastPage) ? "" : "disabled")">
+            <small class="page-link " @onclick="()=>GetList(((MdlPaging.Page < MdlPaging.GetLastPage) ? MdlPaging.Page : MdlPaging.GetLastPage - 1) + 1)">@_iLanguageHelper.GetText("Next")</small>
+        </li>
+        <li class="page-item ps-1 pe-1 min-w-5-rem" title="@_iLanguageHelper.GetText("Paging")">
+            <select class="text-center cursor-hand form-control h-100" @onchange="PageSelectTotal">
+                @foreach (var item in ConstantHelper.PageSizes)
+                {
+                    if (item == MdlPaging?.PageSize)
+                    {
+                        <option value="@item" selected="selected">@item</option>
+                    }
+                    else
+                    {
+                        <option value="@item">@item</option>
+                    }
+                }
+            </select>
+
+        </li>
+
+    </ul>
+}
+
+
+@code {
+    [Parameter] public PageModel MdlPaging { get; set; }
+
+    [Parameter] public EventCallback<int> PageSelect  { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> PageSelectTotal { get; set; }
+
+    private async void GetList(int page)
+    {
+        PageSelect.InvokeAsync(page);
+    }
+}

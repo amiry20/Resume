@@ -1,0 +1,118 @@
+﻿@using App.Application.Bases
+@using App.Application.DTOs
+@using App.Web.Components.Pages.BaseCodes
+@using MediatR
+@typeparam TSearchDTO where TSearchDTO : SearchDTO
+@typeparam TQuery where TQuery : BaseQuery
+@inherits BaseSearchCode<TSearchDTO,TQuery>
+
+<div class="mt-2">
+    <small class="lbl-top @(IsRequired?"required" : "")">
+        @_iLanguageHelper.GetText(SearchTitle)
+    </small>
+    <div class="form-group ">
+        <div class="input-icon">
+            <InputText class="p-1 form-control" @bind-Value="TxtSearch" @oninput="OnInputPerson" onkeypress="return event.keyCode!=13" placeholder="@_iLanguageHelper.GetText("EnterText")" />
+            <small class="bi bi-x-circle ms-1 mt-2 text-danger cursor-hand @( ChildContent==null?"":"me-4")" title="@_iLanguageHelper.GetText("Remove")" @onclick=RemoveItem></small>
+            @ChildContent
+        </div>
+    </div>
+    @if (mdlSearchs.AnyCount())
+    {
+        <div class="autocomplete-list">
+            <ul>
+                @foreach (var display in mdlSearchs)
+                {
+                    <li tabindex="0" id="searchperson_@display.Id"
+                        @onclick="@(() => SelectItem(display))">
+
+                        @if (ViewProperty != null)
+                        {
+                            <small>@GetTypeValue(display)</small>
+                        }
+                        else
+                        {
+                            <small>@display.Id </small>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+@code {
+
+    [Parameter] public EventCallback<TSearchDTO> EventSelect { get; set; }
+    [Parameter] public EventCallback<TQuery> EventQueryItem { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string[]? ViewProperty { get; set; }
+    [Parameter] public string? SearchTitle { get; set; }
+    [Parameter] public bool IsRequired { get; set; } = false;
+    protected ElementReference inputElement;
+    protected string? TxtSearch { get; set; }
+    public List<TSearchDTO>? mdlSearchs { set; get; }
+
+    protected void OnInputPerson(ChangeEventArgs e)
+    {
+        TxtSearch = e.Value?.ToString();
+        if (TxtSearch?.Length > 2)
+            SearchShow();
+        else
+            mdlSearchs = null;
+    }
+    protected string? GetTypeValue(TSearchDTO mdl)
+    {
+        var value = string.Empty;
+        if (ViewProperty != null)
+        {
+            foreach (var item in ViewProperty)
+            {
+                if (!value.IsNullEmpty())
+                    value += " ";
+                var prp = mdl.GetType().GetProperty(item);
+                var prpValue = prp?.GetValue(mdl);
+                if (prpValue != null)
+                    value += prpValue;
+            }
+        }
+        return value;
+    }
+
+    protected async void SearchShow()
+    {
+        if (mdlQuery == null)
+            mdlQuery = (Activator.CreateInstance(typeof(TQuery))) as TQuery;
+
+        mdlQuery.Filter = TxtSearch;
+
+        if (EventQueryItem.HasDelegate)
+            await EventQueryItem.InvokeAsync(mdlQuery);
+
+        await GetList();
+
+        if (mdlReturn != null && mdlReturn.Result)
+        {
+            mdlSearchs = mdlReturn.Data;
+            StateHasChanged();
+        }
+    }
+
+    protected void SelectItem(TSearchDTO? searchDTO)
+    {
+        if (searchDTO != null)
+        {
+            mdlSearchs = null;
+            TxtSearch = null;
+            EventSelect.InvokeAsync(searchDTO);
+        }
+    }
+    protected void RemoveItem()
+    {
+        TxtSearch = null;
+        mdlSearchs = null;
+        EventSelect.InvokeAsync(null);
+    }
+
+
+}

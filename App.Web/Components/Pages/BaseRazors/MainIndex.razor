@@ -1,0 +1,105 @@
+﻿@if (!IsAccess)
+{
+    <ErrorAccess MsgErrors="MsgErrors" />
+}
+else
+{
+    <div class="card ">
+        <div class="card-header ">
+            <div class="overflow-x-flex justify-content-between">
+                <h6 class="card-title float-start min-w-10-rem mt-1">
+                    @ModelName
+                </h6>
+                <div class="text-nowrap">
+                    @if (Add.HasDelegate)
+                    {
+                        <button class="ms-1 me-1 cursor-hand btn-outline-warning btn" @onclick="Add">
+                            @_iLanguageHelper.GetText("Add")
+                        </button>
+                    }
+                    <button class="ms-1 me-1 text-nowrap cursor-hand btn-outline-primary btn" @onclick="Reload">
+                        @_iLanguageHelper.GetText("ReLoad")
+                    </button>
+                    <button class="ms-1 me-1 p-1 mh-100 cursor-hand btn-outline-danger btn" @onclick="ExportPDF" title="@_iLanguageHelper.GetText("Create_File_PDF")">
+                        <i class="bi bi-file-earmark-excel-fill"></i>
+                    </button>
+                    <button class="p-1 mh-100 cursor-hand btn-outline-success btn" @onclick="ExportEcxel" title="@_iLanguageHelper.GetText("Create_File_Ecxel")">
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body ">
+            <MessageBox MsgSuccess=@MsgSuccess MsgErrors="MsgErrors" />
+
+            <div class="overflow-x-flex justify-content-between">
+                <div class="d-flex m-1 max-height-2">
+                    <InputText @bind-Value="TxtFilter" class="p-1 form-control min-w-10-rem" placeholder="@_iLanguageHelper.GetText("EnterText")" />
+                    <button disabled="@IsLoading" class="btn btn-outline-primary" @onclick="Filter">
+                        @_iLanguageHelper.GetText("Search")
+                    </button>
+                </div>
+                <div class="d-flex text-nowrap">
+                    <div class="d-flex m-1 text-nowrap">
+                        <small class=" ">@(_iLanguageHelper.GetText("Total")) ( <small>@MdlPaging?.TotalCount.ToSeprator()</small> )  </small>
+                    </div>
+                    @if (MdlPaging?.TotalCount > 1)
+                    {
+                        <div class="m-1 ">
+                            <TablePaging MdlPaging="MdlPaging" PageSelectTotal="PageSelectTotal" PageSelect="PageSelect" />
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @ChildContent
+
+            <div class="  table-responsive">
+                <table class="table table-hover small table-bordered table-striped mt-1 min-h-25">
+                    <TableHeader mdlStruct="Structs" mdlOrder="Order" SortededEvent="SortededEvent" SearchColumnEvent="SearchColumnEvent" />
+                    @if (IsLoading)
+                    {
+                        <Loading />
+                    }
+                    else
+                    {
+                        int RowNo = 1;
+                        if (MdlPaging != null)
+                            RowNo = MdlPaging.GetRowNo;
+
+                        <TableBody EventCallModels="MdlEventCalls" Mdls="Mdls" MdlStructs="Structs" RowNo="RowNo" />
+                    }
+                </table>
+            </div>
+
+        </div>
+    </div>
+}
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public bool IsAccess { get; set; } = false;
+    [Parameter] public bool IsLoading { get; set; } = false;
+    [Parameter] public List<string> MsgErrors { get; set; }
+    [Parameter] public string? ModelName { get; set; }
+    [Parameter] public string? MsgSuccess { get; set; }
+    [Parameter] public EventCallback ExportPDF { get; set; }
+    [Parameter] public EventCallback ExportEcxel { get; set; }
+    [Parameter] public EventCallback Add { get; set; }
+    [Parameter] public EventCallback Reload { get; set; }
+    [Parameter] public EventCallback<string> SortededEvent { get; set; }
+    [Parameter] public EventCallback<string> SearchColumnEvent { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> PageSelectTotal { get; set; } 
+    [Parameter] public EventCallback<int> PageSelect { get; set; }
+    [Parameter] public EventCallback<string> FilterEvent { get; set; }
+    [Parameter] public App.Application.Bases.OrderModel? Order { get; set; }
+    [Parameter] public App.Application.Bases.PageModel? MdlPaging { get; set; }
+    [Parameter] public List<App.Application.Bases.StructModel>? Structs { get; set; }
+    [Parameter] public List<EventCallModel>? MdlEventCalls { get; set; }
+    public string? TxtFilter { get; set; }
+    [Parameter] public IEnumerable<object>? Mdls { get; set; }
+    protected async void Filter()
+    {
+        await FilterEvent.InvokeAsync(TxtFilter);
+    }
+}

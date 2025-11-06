@@ -1,0 +1,19 @@
+﻿@using App.Application.Bases
+<select class="text-center cursor-hand form-control" @onchange="SelectChange">
+    @foreach (var item in ConstantHelper.PageSizes)
+    {
+        if (item == Paging?.PageSize)
+        {
+            <option value="@item" selected="selected">@item</option>
+        }
+        else
+        {
+            <option value="@item">@item</option>
+        }
+    }
+</select>
+
+@code { 
+    [Parameter] public PageModel Paging { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> SelectChange { get; set; }
+}

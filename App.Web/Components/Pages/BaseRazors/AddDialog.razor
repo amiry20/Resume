@@ -1,0 +1,88 @@
+﻿@using App.Application.Bases
+<div class="modal @modalClass" tabindex="0" role="dialog" style="@modalDisplay">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning bg-gradient"> 
+                <slmall class="modal-title ">  @_iLanguageHelper.GetText("Add") </slmall> 
+            </div>
+            <div class="modal-body">
+                @if (MdlStructs != null && MdlType != null)
+                {
+                    var props = MdlType?.GetProperties();
+                    if (props != null)
+                    { 
+                        foreach (var prop in props)
+                        {
+                            var strc = MdlStructs?.Where(x => x.Name.Equals(prop.Name)).FirstOrDefault();
+                            @if (strc != null)
+                            {
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend mv-6">
+                                        <small class="input-group-text ">@strc.Title</small>
+                                    </div>
+                                 @*    @if (first == 0)
+                                    {
+                                        <input @ref=ReferenceControl tabindex="1" type="text" class="form-control">
+                                    }
+                                    else
+                                    { *@
+                                        <input type="text" class="form-control">
+                                    @* } *@
+                                </div>
+                            } 
+                        }
+                    }
+                } 
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-info" @ref=ReferenceControl tabindex="1" @onclick="SaveReturn"> @_iLanguageHelper.GetText("SaveReturn")</button>
+                <button class="btn btn-primary" @onclick="Save"> @_iLanguageHelper.GetText("Save")</button>
+                <button class="btn btn-secondary" @onclick="Return">@_iLanguageHelper.GetText("Return")</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+ 
+
+@code { 
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback<string> EventSave { get; set; }
+    [Parameter] public List<StructModel>? MdlStructs { get; set; }
+    [Parameter] public Type? MdlType { get; set; }
+
+    ElementReference ReferenceControl; 
+    private string modalDisplay = "display:none;";
+    private string modalClass = string.Empty;  
+    string msgError = string.Empty;
+    private bool showBackdrop = false;
+     
+     
+    public void Show()
+    {
+        modalDisplay = "display:block;";
+        modalClass = "show";
+        showBackdrop = true;
+    }
+    private void Return()
+    {
+        modalDisplay = "display:none;";
+        modalClass = "";
+        showBackdrop = false;
+        StateHasChanged();
+    }
+    private void Save()
+    {
+        modalDisplay = "display:none;";
+        modalClass = "";
+        showBackdrop = false;
+        StateHasChanged();
+        EventSave.InvokeAsync();
+    }
+    private void SaveReturn()
+    {
+        Save();
+        Return();
+    }
+}

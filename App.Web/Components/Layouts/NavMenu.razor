@@ -1,0 +1,162 @@
+﻿@using App.Application
+@using App.Application.Bases
+@using App.Application.DTOs
+@using App.Application.Models 
+@using System.Security.Claims
+@rendermode @(new InteractiveServerRenderMode(false))
+@inject NavigationManager navigationManager
+@inject IIOC ioc
+@inject IAccess iAccess
+@inject HttpContextAccessor httpContextAccessor
+<AuthorizeView>
+    <Authorized>
+        <div class="top-row ps-3 navbar navbar-dark">
+            <div class="container-fluid">
+                <div class="navbar-brand ">
+                    @if (!ImagePath.IsNullEmpty())
+                    {
+                        <img class="img-box-35 m-1" src="@ImagePath" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-person-circle"></i>
+                    }
+                    <small class="navbar-brand cursor-hand" @onclick="Profile">@UserName </small>
+                </div>
+            </div>
+        </div>
+
+        <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+
+        <div class="nav-scrollable">
+            <nav class="flex-column">
+
+                @if (UserMenuInfos.AnyCount())
+                {
+                    foreach (var item0 in UserMenuInfos!)
+                    {
+                        <div class="nav-item px-3">
+                            <div class="nav-link" role="button" data-bs-toggle="collapse" data-bs-target="#Sub@(item0.Id)" aria-expanded="false" aria-controls="collapseExample">
+                                <div class="form-group d-flex ">
+                                    @if (!item0.IconOne.IsNullEmpty())
+                                    {
+                                        <i class="@item0.IconOne"></i>
+                                    }
+                                    <small title="@_iLanguageHelper.GetText(item0.Description)">  @_iLanguageHelper.GetText(item0.Title)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (item0.SubMenus.AnyCount())
+                        {
+                            <div class="nav-item px-3 collapse ms-3" id="Sub@(item0.Id)">
+
+                                @foreach (var item1 in item0.SubMenus!)
+                                {
+                                    if (item1.SubMenus.AnyCount())
+                                    {
+                                        <div class="nav-link text-nowrap" role="button" data-bs-toggle="collapse" data-bs-target="#Sub@(item1.Id)" aria-expanded="false" aria-controls="collapseExample">
+                                            <div class="form-group d-flex ">
+                                                @if (!item1.IconOne.IsNullEmpty())
+                                                {
+                                                    <i class="@item1.IconOne"></i>
+                                                }
+                                                <small title="@_iLanguageHelper.GetText(item1.Description)">   @_iLanguageHelper.GetText(item1.Title)</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="nav-item px-3 collapse" id="Sub@(item1.Id)">
+                                            @foreach (var sub in item1.SubMenus!)
+                                            {
+                                                <NavLink class="nav-link 4 text-nowrap" href="@sub.Link">
+                                                    <div class="form-group d-flex ">
+                                                        @if (!sub.IconOne.IsNullEmpty())
+                                                        {
+                                                            <i class="@sub.IconOne"></i>
+                                                        }
+                                                        <small title="@_iLanguageHelper.GetText(sub.Description)">@_iLanguageHelper.GetText(sub.Title)</small>
+                                                    </div>
+                                                </NavLink>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <NavLink class="nav-link text-nowrap " href="@item1.Link" title="@_iLanguageHelper.GetText(item1.Description)">
+                                            <div class="form-group d-flex ">
+                                                @if (!item1.IconOne.IsNullEmpty())
+                                                {
+                                                    <i class="@item1.IconOne"></i>
+                                                }
+                                                <small title="@_iLanguageHelper.GetText(item1.Description)">   @_iLanguageHelper.GetText(item1.Title)</small>
+                                            </div>
+                                        </NavLink>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                     
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link text-nowrap " href="/Logout" title="@_iLanguageHelper.GetText("Exit")">
+                            <div class="form-group d-flex ">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <small title="@_iLanguageHelper.GetText("Exit")">   @_iLanguageHelper.GetText("Exit")</small>
+                            </div>
+                        </NavLink>
+                    </div>
+                }
+                else
+                {
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link text-nowrap ">
+                            <div class="form-group d-flex ">
+                                <i class="text-primary spinner-border hw-1 "></i>
+                                <small class="navbar-brand cursor-hand" @onclick="Refresh">@_iLanguageHelper.GetText("IsLoading")</small>
+                            </div>
+                        </NavLink>
+                    </div>
+                }
+
+            </nav>
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+        <div class="top-row ps-3 navbar navbar-dark">
+            <div class="container-fluid">
+                <div class="navbar-brand ">
+                    <i class="text-primary spinner-border hw-1 "></i>
+                    <small class="navbar-brand cursor-hand" @onclick="Refresh">.@_iLanguageHelper.GetText("ReLoad").</small>
+                </div>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private string? ImagePath { get; set; }
+    private string? UserName { get; set; } 
+    private List<MenuDTO>? UserMenuInfos { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = httpContextAccessor.HttpContext?.User;
+
+        if (user != null)
+        {
+            UserName = user.Identity?.Name; 
+            ImagePath = user.FindFirst(ClaimTypes.MobilePhone)?.Value;
+            UserMenuInfos = iAccess.GetUserMenus();
+        }
+    }
+    protected async void Refresh()
+    {
+        await OnInitializedAsync();
+    }
+    protected void Profile()
+    {
+        navigationManager.NavigateTo("/Users/Profile");
+    } 
+} 

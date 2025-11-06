@@ -1,0 +1,50 @@
+﻿@page "/Bank/Edit/{_keyid:guid}"
+@using App.Application.Bases
+@using App.Application.DTOs
+
+@using App.Application.Queries
+@using App.Web.Components.Pages.Banks
+
+@inherits BankCodeEdit
+@rendermode @(new InteractiveServerRenderMode(false))
+
+<PageTitle>@_iLanguageHelper.GetText("Edit") </PageTitle>
+
+
+    <MainEdit EditContext="_editContext" Submit="Submit" FormTitle="Bank" FormName="DriverAddCommand" IsAccess="_isAccess" IsLoading="_isLoading"
+              MsgSuccess=@_msgSuccess MsgErrors="_msgErrors" Return="Return" EventAction="SetActionType">
+
+
+    <div class="row overflow-auto">
+
+            <div class="col-md-5 bg-round-1">
+
+                <div class="mt-2 d-flex">
+                    <small class="lbl-title required">
+                        @_iLanguageHelper.GetText("State")
+                </small> 
+                <div class="p-1 ps-2 pe-3 rounded-1 border border-1p lbl-value">
+                    <label class="switch">
+                        <input type="checkbox" @bind="_commandMain.IsEnable">
+                        <span class="slider round">  </span>
+                    </label>
+                    <small class="ms-1 @(_commandMain.IsEnable?"text-success" : "text-danger")">
+                        @_iLanguageHelper.GetText(_commandMain.IsEnable ? "Active" : "Inactive")
+                    </small>
+                </div>
+            </div>
+            <div class="mt-4">
+                <small class="lbl-top required">
+                    @_iLanguageHelper.GetText(nameof(_commandMain.Name))
+                </small>
+                <InputText @ref=_TextForFocus @bind-Value="_commandMain!.Name" class="p-1 form-control " />
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+</MainEdit>
+

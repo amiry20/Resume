@@ -1,0 +1,106 @@
+﻿@page "/Tabs" 
+@using App.Web.Components.Pages.Drivers 
+@layout Layouts.EmptyLayout
+@rendermode @(new InteractiveServerRenderMode(false))
+
+
+<div class="row">
+
+    <div class="col-3">
+        <div class="p-1 border border-2 rounded-1">
+            <button @onclick="RenderComponentPetDetails">
+                Add PetDetails
+            </button>
+        </div>
+        <div class="p-1 border border-2 rounded-1">
+            <button @onclick="RenderComponentHome">
+                Add Home
+            </button>
+        </div>
+        <div class="p-1 border border-2 rounded-1">
+            <button @onclick="RenderComponentWeather">
+                Add Weather
+            </button>
+
+        </div>
+    </div>
+    <div class="col-9">
+        <div class="p-1 mt-1 border border-2 rounded-1">
+
+            @if (CustomRenders != null)
+            {
+                <ul class="nav nav-tabs" id="pills-tab" role="tablist">
+                    @foreach (var item in CustomRenders)
+                    {
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link  @(ActivTapName==item.Key ? "active":"") "
+                                    id="@($"{item.Key}-tab")" data-bs-toggle="pill"
+                                    data-bs-target="#@item.Key" type="button" role="tab"
+                                    aria-controls="@item.Key" aria-selected="true">
+                                @item.Key
+                            </button>
+                        </li>
+                    }
+                </ul>
+
+
+                <div class="tab-content" id="pills-tabContent">
+                    @{
+                        foreach (var item in CustomRenders)
+                        {
+                            <div class="tab-pane fade @(ActivTapName==item.Key ? " show active":"")" id="@item.Key" role="tabpanel" aria-labelledby="@($"{item.Key}-tab")">
+                                <div>
+                                    @item.Value
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+
+@code {
+
+    private string ActivTapName { get; set; }
+    private Dictionary<string, RenderFragment>? CustomRenders { get; set; }
+
+    private RenderFragment CreateComponent(Type type) => builder =>
+    {
+        // for (var i = 0; i < 3; i++)
+        // {
+        builder.OpenComponent(0, type);
+        // builder.AddAttribute(1, "PetDetailsQuote" , i + "Someone's best friend!");
+        builder.CloseComponent();
+        // }
+    };
+
+    private void RenderComponentPetDetails()
+    {
+        if (CustomRenders == null)
+            CustomRenders = new Dictionary<string, RenderFragment>();
+        ActivTapName = nameof(App.Web.Components.Pages.Drivers.Index);
+        CustomRenders.TryAdd(nameof(App.Web.Components.Pages.Drivers.Index), CreateComponent(typeof(App.Web.Components.Pages.Drivers.Index)));
+    }
+
+    private void RenderComponentHome()
+    {
+        if (CustomRenders == null)
+            CustomRenders = new Dictionary<string, RenderFragment>();
+
+        ActivTapName = nameof(App.Web.Components.Pages.Persons.Index);
+        CustomRenders.TryAdd(nameof(App.Web.Components.Pages.Persons.Index), CreateComponent(typeof(App.Web.Components.Pages.Persons.Index)));
+    }
+    private void RenderComponentWeather()
+    {
+        if (CustomRenders == null)
+            CustomRenders = new Dictionary<string, RenderFragment>();
+
+        // ActivTapName = nameof(App.Web.Components.Pages.BaseInfos.Camions.ComionIndex);
+        // CustomRenders.TryAdd(nameof(App.Web.Components.Pages.BaseInfos.Camions.ComionIndex), CreateComponent(typeof(App.Web.Components.Pages.BaseInfos.Camions.ComionIndex)));
+    }
+}

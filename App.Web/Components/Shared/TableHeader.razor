@@ -1,0 +1,55 @@
+﻿@using App.Application.Bases
+<thead>
+    @if (mdlStruct != null)
+    {
+        <tr class="text-center">
+            <th  style="width:1rem;">
+                #
+            </th>
+
+            @foreach (var item in mdlStruct.Where(x => x.IsVisible))
+            {
+                var arrow = "";
+                var asc = false; 
+                if (mdlOrder != null && mdlOrder.ColName.ToLower().Equals(item.OrderField.ToLower()))
+                {
+                    asc = !mdlOrder.Asc;
+                    if (mdlOrder.Asc)
+                        arrow = "bi bi-arrow-down text-primary";
+                    else arrow = "bi bi-arrow-up text-primary";
+                }
+                <th class="text-nowrap p-1" style="width:@(item.Width)px;min-width:@(item.Width)px;"> 
+                    <i class="float-start @(arrow)"></i>
+                    <small class="float-start cursor-pointer " @onclick="@(()=>Sorteded(item.OrderField,asc))">@item.Title</small>
+                    @* <input   class="mt-2 p-1 form-control "  />  *@
+                </th>
+            }
+
+            @if (IsButtons)
+            {
+                <th class="text-nowrap">
+
+                </th>
+            }
+        </tr>
+    }
+</thead>
+@code {
+
+    [Parameter] public string? SearchTxt { get; set; }
+    [Parameter] public bool IsButtons { get; set; } = true;
+    [Parameter] public List<StructModel>? mdlStruct { get; set; }
+    [Parameter] public OrderModel? mdlOrder { get; set; }
+    [Parameter] public EventCallback<string> SortededEvent { get; set; }
+    [Parameter] public EventCallback<string> SearchColumnEvent { get; set; }
+
+    private async Task Sorteded(string sorted, bool asc)
+    {
+        await SortededEvent.InvokeAsync($"{sorted},{asc}");
+    }
+
+    private async Task SearchColumn(string search)
+    {
+        await SearchColumnEvent.InvokeAsync(search);
+    }
+}

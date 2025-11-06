@@ -1,0 +1,244 @@
+﻿@using App.Application.Bases
+@using App.Application.DTOs
+@using App.Web.Components.Pages.BaseCodes
+@using MediatR
+@typeparam TSearchDTO where TSearchDTO : SearchDTO
+@typeparam TQuery where TQuery : BaseQuery
+@inherits BaseSearchCode<TSearchDTO,TQuery>
+<div class="modal @modalClass " tabindex="0" role="dialog" style="@modalDisplay" @onkeydown="HandleKeyPress">
+    <div class="modal-dialog " role="document">
+
+        <div class="modal-content ">
+
+
+            <div class="modal-header bg-info  ">
+                <slmall class="modal-title ">  @_iLanguageHelper.GetText("Search") </slmall>
+
+                <small class=" mt-1 ms-1 me-1">( <small>@mdlReturn.Paging?.TotalCount.ToSeprator()</small> / <small>@selectCount</small>  )  </small>
+
+            </div>
+
+
+            <div class="modal-body ">
+
+                @if (_isLoading)
+                {
+                    <Loading Title="SearchDialog" />
+
+                }
+                else if (_msgErrors == null)
+                {
+                    <div class="row">
+                        <div class="col-md-6 ">
+                            <div class="float-start">
+                                <div class="input-group">
+                                    <input @ref="inputElement" @bind="@TxtFilter" type="text" class="form-control " placeholder="@_iLanguageHelper.GetText("EnterText")">
+                                    <button disabled="@_isLoading" class="btn btn-outline-primary" @onclick="Filter">
+                                        @_iLanguageHelper.GetText("Search")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row  ">
+                        <div class="col p-0">
+                            <div class="table-responsive h-px-250 ">
+                                <table class="table table-hover small table-bordered table-striped mt-2">
+
+                                    <thead>
+                                        @if (mdlReturn?.Structs != null)
+                                        {
+                                            <tr class="text-center">
+                                                @foreach (var item in mdlReturn?.Structs.Where(x => x.IsVisible))
+                                                {
+                                                    var arrow = "";
+                                                    var asc = false;
+                                                    if (mdlReturn.Order != null && mdlReturn.Order.ColName.ToLower().Equals(item.Name.ToLower()))
+                                                    {
+                                                        asc = !mdlReturn.Order.Asc;
+                                                        if (mdlReturn.Order.Asc)
+                                                            arrow = "bi bi-arrow-down text-primary";
+                                                        else arrow = "bi bi-arrow-up text-primary";
+                                                    }
+                                                    <th class="text-nowrap">
+                                                        <i class="float-start @(arrow)"></i>
+                                                        <small class="float-start cursor-pointer " @onclick="@(()=>Sorteded(item.Name,asc))">@item.Title</small>
+                                                    </th>
+                                                }
+                                            </tr>
+                                        }
+                                    </thead>
+
+                                    @if (mdlReturn?.Data != null)
+                                    {
+                                        <tbody>
+                                            @if (mdlReturn?.Data != null)
+                                            {
+                                                var props = mdlReturn?.Data.FirstOrDefault()?.GetType().GetProperties();
+
+                                                foreach (var item in mdlReturn?.Data)
+                                                {
+                                                    <tr class="cursor-hand">
+
+                                                        @if (mdlReturn?.Structs != null)
+                                                        {
+                                                            foreach (var strc in mdlReturn?.Structs)
+                                                            {
+                                                                if (!strc.IsVisible) continue;
+
+                                                                var propId = props?.Where(x => x.Name.Equals(nameof(SearchDTO.Id))).FirstOrDefault();
+                                                                var prop = props?.Where(x => x.Name.Equals(strc.Name)).FirstOrDefault();
+                                                                if (prop == null) continue;
+                                                                var id = propId?.GetValue(item, null).ToLongNull(0);
+                                                                var propValue = prop?.GetValue(item, null)?.ToString();
+
+                                                                <td class="@strc.TextAligh" @onclick="((e)=>SelectRow(id))">
+                                                                     
+                                                                    @if (prop.Name.ToLower() == "isselect")
+                                                                    {
+                                                                        var val = false;
+                                                                        if (!propValue.IsNullEmpty())
+                                                                            val = bool.Parse(propValue);
+                                                                        if (val)
+                                                                        {
+                                                                            <small class="text-primary p-1 bg-warning rounded-1"><small>@_iLanguageHelper.GetText("Select")</small> </small>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <small class=""></small>
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        if (strc.IsSeprator)
+                                                                        {
+                                                                            <small class="">@(propValue.ToLongString(0, "#,#"))</small>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <small class="">@(propValue)</small>
+                                                                        }
+                                                                    }
+                                                                </td>
+                                                            }
+                                                        }
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (mdlReturn.Paging?.TotalCount > 1)
+                    {
+                        <div class="float-end mt-1 ">
+                            <TablePaging MdlPaging="mdlReturn.Paging" PageSelect="GetPage" PageSelectTotal="SelectChange" />
+                        </div>
+                    }
+                }
+                else
+                {
+                    <MessageBox MsgErrors="_msgErrors" />
+                }
+            </div>
+
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" @onclick="Selected"> @_iLanguageHelper.GetText("Select")</button>
+                <button class="btn btn-secondary" @onclick="Return">@_iLanguageHelper.GetText("Return")</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter] public bool IsMultiSelect { get; set; } = false;
+    [Parameter] public EventCallback<(List<object>, string)> EventSelect { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    protected ElementReference inputElement;
+
+    protected List<object>? MdlSelecteds { get; set; }
+
+    protected string modalDisplay = "display:none;";
+    protected string modalClass = string.Empty;
+    protected string searchType = string.Empty;
+    protected bool showBackdrop = false;
+    protected int selectCount = 0;
+
+    protected async Task SelectRow(long? id)
+    {
+        var item = mdlReturn.Data?.Where(c => c.Id == id).FirstOrDefault();
+
+        if (item != null)
+        {
+            if (!item.IsSelect.ToBool() && !IsMultiSelect && selectCount != 0) return;
+
+            item.IsSelect = !item.IsSelect;
+            selectCount = item.IsSelect.ToBool() ? selectCount + 1 : selectCount - 1;
+            if (selectCount < 0) selectCount = 0;
+            if (selectCount > mdlReturn.Data.Count) selectCount = mdlReturn.Data.Count;
+
+            if (!IsMultiSelect)
+                Selected();
+        }
+    }
+
+    protected void Selected()
+    {
+        foreach (var value in mdlReturn.Data)
+        {
+            if (value.IsSelect.ToBool())
+            {
+                if (MdlSelecteds == null)
+                    MdlSelecteds = new List<object>();
+                MdlSelecteds.Add(value);
+            }
+        }
+        if (MdlSelecteds != null && MdlSelecteds.Count > 0)
+        {
+            EventSelect.InvokeAsync((MdlSelecteds, searchType));
+            Return();
+        }
+    }
+
+    public async void Show(TQuery? query, string searchType)
+    {
+        this.searchType = searchType;
+        selectCount = 0;
+        mdlQuery = query;
+        modalDisplay = "display:block;";
+        modalClass = "show";
+        showBackdrop = true;
+        MdlSelecteds = null;
+        TxtFilter = query.Filter;
+        await GetList();
+        if (mdlReturn != null && mdlReturn.Result && mdlReturn.Data != null && mdlReturn.Data.Count == 1)
+        {
+            await SelectRow(mdlReturn.Data.FirstOrDefault().Id);
+            Selected();
+        }
+        else
+            await inputElement.FocusAsync();
+    }
+    protected void Return()
+    {
+        modalDisplay = "display:none;";
+        modalClass = "";
+        showBackdrop = false;
+        StateHasChanged();
+
+    }
+     
+    protected async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+            Return();
+    }
+
+}
